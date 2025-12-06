@@ -9,3 +9,13 @@ The goal with this project is to create a 2D game engine that can be used to cre
 Heres the website I'm using to learn SDL2:
 
 https://lazyfoo.net/tutorials/SDL/index.php#Key%20Presses
+
+# Running
+
+    make all
+
+Compiles engine.cpp and creates an executable called ./engine
+
+    ./engine
+
+Runs the program
