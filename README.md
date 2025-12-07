@@ -13,6 +13,8 @@ https://lazyfoo.net/tutorials/SDL/index.php#Key%20Presses
 
 # Running
 
+Make sure you have SDL2 installed, then
+
     make all
 
 Compiles engine.cpp and creates an executable called ./engine
