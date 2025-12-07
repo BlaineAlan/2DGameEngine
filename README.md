@@ -17,12 +17,12 @@ Make sure you have SDL2 installed, then
 
     make all
 
-Compiles engine.cpp and creates an executable called ./engine
+Compiles engine.cpp and creates an executable called 'game'
 
-    ./engine
+    ./game
 
 Runs the program
 
 # Progress
 
-So far the demo can open a window, loading a simple image at default. When hitting the arrow keys it will change the image. Hitting the 'x' will close the program.
+So far the demo can open a window and draw a rect on the screen. All the files are seperated into engine files and game files, to avoid hardcoding anything game specific into the engine itself.
