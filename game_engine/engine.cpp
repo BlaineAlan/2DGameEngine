@@ -6,6 +6,7 @@
 #include <string>
 #include <sstream>
 #include "engine.h"
+#include "../games/ball.h"
 
 Engine::Engine() {}
 
@@ -19,6 +20,7 @@ Engine::~Engine() {
     SDL_DestroyWindow(window);
     window = nullptr;
 
+    TTF_Quit();
     IMG_Quit();
     SDL_Quit();
 }
@@ -26,7 +28,6 @@ Engine::~Engine() {
 bool Engine::init(const char* title){
     bool success = true;
     
-
     if(SDL_Init(SDL_INIT_VIDEO) < 0){
         std::cout << "SDL could not initialize! SDL_Error: \n" << SDL_GetError();
         success = false;
@@ -41,6 +42,8 @@ bool Engine::init(const char* title){
                 std::cout << "Renderer could not be created!" << SDL_GetError();
                 success = false;
             }
+
+
         }
     }
 
@@ -49,6 +52,8 @@ bool Engine::init(const char* title){
 
 void Engine::run(IGame* game){
     bool quit = false;
+
+    game->init(*this);
 
     game->loadMedia(renderer);
 
@@ -59,7 +64,6 @@ void Engine::run(IGame* game){
                 quit = true;
             }
         }
-
 
         SDL_RenderClear(renderer);
 

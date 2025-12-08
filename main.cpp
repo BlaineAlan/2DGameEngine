@@ -13,7 +13,7 @@ int main(){
     
     engine.init("Test game");
 
-    MyGame game;
+    MyGame game(engine);
 
     engine.run(&game);
 

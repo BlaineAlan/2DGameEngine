@@ -9,9 +9,14 @@
 #include <string>
 #include <sstream>
 
+class Engine;
+
 class IGame {
     public:
         virtual ~IGame() {}
+
+        virtual void init(Engine& engine) = 0;
+
         virtual void loadMedia(SDL_Renderer* renderer)  = 0;
         //virtual void update(float dt) = 0;
         virtual void render(SDL_Renderer* renderer) = 0;
@@ -33,6 +38,14 @@ class Engine{
 
         SDL_Texture* loadTexture(std::string path);
 
+
+        int get_screen_h() const{
+            return SCREEN_HEIGHT;
+        }
+
+        int get_screen_w() const{
+            return SCREEN_WIDTH;
+        }
 
     private:
 
