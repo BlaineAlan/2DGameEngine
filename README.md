@@ -10,6 +10,10 @@ Heres the website I'm using to learn SDL2:
 
 https://lazyfoo.net/tutorials/SDL/index.php#Key%20Presses
 
+And the website I'm using to recreate Pong:
+
+https://austinmorlan.com/posts/pong_clone/
+
 
 # Running
 
