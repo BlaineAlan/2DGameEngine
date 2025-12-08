@@ -10,6 +10,10 @@ Heres the website I'm using to learn SDL2:
 
 https://lazyfoo.net/tutorials/SDL/index.php#Key%20Presses
 
+And the website I'm using to recreate Pong:
+
+https://austinmorlan.com/posts/pong_clone/
+
 
 # Running
 
@@ -25,4 +29,4 @@ Runs the program
 
 # Progress
 
-So far the demo can open a window and draw a rect on the screen. All the files are seperated into engine files and game files, to avoid hardcoding anything game specific into the engine itself.
+So far the demo can open a window and draw out all the objects needed for the game 'Pong' (no movement yet). All the files are seperated into engine files and game files, to avoid hardcoding anything game specific into the engine itself.
