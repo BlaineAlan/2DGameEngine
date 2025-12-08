@@ -4,7 +4,7 @@ The goal with this project is to create a 2D game engine that can be used to cre
 
 1. First make the engine
 
-2. Make a game on it (probably pong)
+2. Make Pong with it for a demo
 
 Heres the website I'm using to learn SDL2:
 
@@ -21,7 +21,7 @@ Make sure you have SDL2 installed, then
 
     make all
 
-Compiles engine.cpp and creates an executable called 'game'
+Compiles all necessary .cpp files and creates an executable called 'game'
 
     ./game
 
@@ -29,4 +29,4 @@ Runs the program
 
 # Progress
 
-So far the demo can open a window and draw out all the objects needed for the game 'Pong' (no movement yet). All the files are seperated into engine files and game files, to avoid hardcoding anything game specific into the engine itself.
+So far the demo can open a window and draw out all the objects needed for the game 'Pong', and both paddles can move. Use the up and down arrow keys for the right side, and w and s keys for the left side. All the files are seperated into engine files and game files, to avoid hardcoding anything game specific into the engine itself.
