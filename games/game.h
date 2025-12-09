@@ -10,6 +10,7 @@
 
 #include "../game_engine/engine.h"
 #include "ball.h"
+#include <SDL2/SDL_mixer.h>
 
 class MyGame : public IGame {
     public:
@@ -22,6 +23,8 @@ class MyGame : public IGame {
          * @param engine 
          */
         MyGame(Engine& engine);
+
+        ~MyGame();
 
         /**
          * @brief Initialize the game using the engine, setting everything in it's initial place
@@ -140,6 +143,10 @@ class MyGame : public IGame {
         PlayerScore pressEnterText;
 
         int lastPointLoser = 0;
+
+        Mix_Chunk* wallHitSound;
+        
+        Mix_Chunk* paddleHitSound;
 
 };
 

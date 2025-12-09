@@ -14,6 +14,7 @@
 #include <sstream>
 #include "game_engine/engine.h"
 #include "games/game.h"
+#include <SDL2/SDL_mixer.h>
 
 int main(){    
     //Create the engine

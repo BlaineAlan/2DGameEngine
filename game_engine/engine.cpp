@@ -15,6 +15,7 @@
 #include "engine.h"
 #include "../games/ball.h"
 #include <chrono>
+#include <SDL2/SDL_mixer.h>
 
 Engine::Engine() {}
 
@@ -32,13 +33,14 @@ Engine::~Engine() {
     TTF_Quit();
     IMG_Quit();
     SDL_Quit();
+    Mix_Quit();
 }
 
 bool Engine::init(const char* title){
     bool success = true;
     
     //make sure SDL initializes without fail
-    if(SDL_Init(SDL_INIT_VIDEO) < 0){
+    if(SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO) < 0){
         std::cout << "SDL could not initialize! SDL_Error: \n" << SDL_GetError();
         success = false;
     }else{
@@ -55,6 +57,7 @@ bool Engine::init(const char* title){
                 std::cout << "Renderer could not be created!" << SDL_GetError();
                 success = false;
             }
+
 
         }
     }

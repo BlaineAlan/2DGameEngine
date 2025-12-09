@@ -4,7 +4,7 @@ CC = g++
 
 CXXFLAGS = -std=c++17
 
-LINKER_FLAGS = -lSDL2 -lSDL2_image -lSDL2_ttf
+LINKER_FLAGS = -lSDL2 -lSDL2_image -lSDL2_ttf -lSDL2_mixer
 
 OBJ_NAME = game
 

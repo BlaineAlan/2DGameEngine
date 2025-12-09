@@ -31,4 +31,4 @@ Runs the program
 
 # Progress
 
-The Pong demo is now complete. Player 1 (left) uses W + S to move, Player 2 (right) uses up + down arrow keys to move. When one person scores, the ball is served to the other person, and that is repeated until someone reaches 10, at which point the game is over and the winner is announced.
+The Pong demo is now complete. Player 1 (left) uses W + S to move, Player 2 (right) uses up + down arrow keys to move. When one person scores, the ball is served to the other person, and that is repeated until someone reaches 10, at which point the game is over and the winner is announced. There are sounds as well, for hitting the ball and the ball bouncing off the wall.

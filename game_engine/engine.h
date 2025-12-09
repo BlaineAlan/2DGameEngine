@@ -15,6 +15,7 @@
 #include <stdio.h>
 #include <string>
 #include <sstream>
+#include <SDL2/SDL_mixer.h>
 
 class Engine;
 

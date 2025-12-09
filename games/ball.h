@@ -9,6 +9,7 @@
 #define BALL_H
 
 #include "../game_engine/engine.h"
+#include <SDL2/SDL_mixer.h>
 
 class Vec2{
     public:

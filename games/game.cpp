@@ -2,11 +2,18 @@
 #include "game.h"
 #include "../game_engine/engine.h"
 #include "ball.h"
+#include <SDL2/SDL_mixer.h>
 
 //Set everything to just be at 0
 MyGame::MyGame(Engine& engine)
     :  ball(Vec2(0.0f, 0.0f), Vec2(0.0f, 0.0f)), paddle1(Vec2(0.0f, 0.0f), Vec2(0.0f, 0.0f)), paddle2(Vec2(0.0f, 0.0f), Vec2(0.0f, 0.0f))
 {}
+
+MyGame::~MyGame(){
+    Mix_FreeChunk(wallHitSound);
+    Mix_FreeChunk(paddleHitSound);
+}
+
 
 void MyGame::init(Engine& engine){
     float w = engine.get_screen_w();
@@ -20,6 +27,21 @@ void MyGame::init(Engine& engine){
     font = TTF_OpenFont("fonts/ttf/DejaVuSansMono.ttf", 40);
     
     
+    if (Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 2048) < 0) {
+        std::cout << "Mix_OpenAudio Error: " << Mix_GetError() << "\n";
+    }
+
+    wallHitSound = Mix_LoadWAV("sounds/wallHitSound.wav");
+
+    if (!wallHitSound) {
+        std::cout << "Failed to load wallHitSound.wav: " << Mix_GetError() << "\n";
+    }
+
+    paddleHitSound = Mix_LoadWAV("sounds/paddleHitSound.wav");
+    if (!paddleHitSound) {
+        std::cout << "Failed to load paddleHitSound.wav: " << Mix_GetError() << "\n";
+    }
+
     //set ball to be in the middle of the screen
     ball.setPosition(
         Vec2((w / 2.0f),(h / 2.0f)),
@@ -46,6 +68,8 @@ void MyGame::init(Engine& engine){
     pressEnterText.Init(Vec2(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2 + 20), renderer, font, "Press ENTER");
 
     gameOverText.Init(Vec2(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2 - 40), renderer, font, "GAME OVER");
+
+
 
 }
 
@@ -271,6 +295,8 @@ void MyGame::UpdateGameplay(float dt){
     if(Contact contact = CheckPaddleCollision(ball, paddle1); contact.type != CollisionType::None){
         ball.CollideWithPaddle(contact);
 
+        Mix_PlayChannel(-1, paddleHitSound, 0);
+
         if(serveIsSlow){
             float sign = (ball.velocity.x < 0) ? -1.0f : 1.0f;
             ball.velocity.x = sign * BALL_SPEED;
@@ -278,6 +304,8 @@ void MyGame::UpdateGameplay(float dt){
         }
     }else if(contact = CheckPaddleCollision(ball, paddle2); contact.type != CollisionType::None){
         ball.CollideWithPaddle(contact);
+
+        Mix_PlayChannel(-1, paddleHitSound, 0);
 
         if(serveIsSlow){
             float sign = (ball.velocity.x < 0) ? -1.0f : 1.0f;
@@ -306,6 +334,8 @@ void MyGame::UpdateGameplay(float dt){
 
             ResetBall(true);
 
+        }else{
+            Mix_PlayChannel(-1, wallHitSound, 0);
         }
 
         if(playerOneScore >= WIN_SCORE){
