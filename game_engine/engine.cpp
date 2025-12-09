@@ -14,6 +14,7 @@
 #include <sstream>
 #include "engine.h"
 #include "../games/ball.h"
+#include <chrono>
 
 Engine::Engine() {}
 
@@ -70,7 +71,7 @@ void Engine::run(IGame* game){
 
     //initialize the game and load any media from it using the renderer
     game->init(*this);
-    game->loadMedia(renderer);
+    //game->loadMedia(renderer);
 
     /* MAIN LOOP */
     //while the user hasn't quit the game
@@ -103,4 +104,8 @@ void Engine::run(IGame* game){
 	    dt = std::chrono::duration<float, std::chrono::milliseconds::period>(stopTime - startTime).count();
     }
 
+}
+
+SDL_Renderer* Engine::get_renderer(){
+    return renderer;
 }

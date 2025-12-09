@@ -94,6 +94,8 @@ class Engine{
             return SCREEN_WIDTH;
         }
 
+        SDL_Renderer* get_renderer();
+
     private:
 
         //default screen height, 1280 x 720

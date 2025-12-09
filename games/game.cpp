@@ -5,12 +5,19 @@
 
 //Set everything to just be at 0
 MyGame::MyGame(Engine& engine)
-    :  ball(Vec2(0.0f, 0.0f), Vec2(0.0f, 0.0f)), paddle1(Vec2(0.0f, 0.0f), Vec2(0.0f, 0.0f)), paddle2(Vec2(0.0f, 0.0f), Vec2(0.0f, 0.0f)), playerOneScoreText(Vec2(0.0f, 0.0f), renderer, font), playerTwoScoreText(Vec2(0.0f, 0.0f), renderer, font)
+    :  ball(Vec2(0.0f, 0.0f), Vec2(0.0f, 0.0f)), paddle1(Vec2(0.0f, 0.0f), Vec2(0.0f, 0.0f)), paddle2(Vec2(0.0f, 0.0f), Vec2(0.0f, 0.0f))
 {}
 
 void MyGame::init(Engine& engine){
     float w = engine.get_screen_w();
     float h = engine.get_screen_h();
+
+    renderer = engine.get_renderer();
+
+    //initialize our TTF (text)
+    TTF_Init();
+    //set the font
+    font = TTF_OpenFont("fonts/ttf/DejaVuSansMono.ttf", 40);
     
     
     //set ball to be in the middle of the screen
@@ -30,62 +37,47 @@ void MyGame::init(Engine& engine){
         Vec2(0.0f, 0.0f)
     );
 
-    //initialize our TTF (text)
-    TTF_Init();
-    //set the font
-    TTF_Font* scoreFont = TTF_OpenFont("fonts/ttf/DejaVuSansMono.ttf", 40);
-    //Set where the player 1 text will go
-    PlayerScore playerOneScoreText(Vec2(SCREEN_WIDTH / 4, 20), playerOneScoreText.renderer, scoreFont);
-    //Set where the player 2 text will go
-    PlayerScore playerTwoScoreText(Vec2(3 * SCREEN_WIDTH / 4, 20), playerTwoScoreText.renderer, scoreFont);
+
+    playerOneScoreText.Init(Vec2(SCREEN_WIDTH / 4, 20), renderer, font, "");
+    playerTwoScoreText.Init(Vec2(3 * SCREEN_WIDTH / 4, 20), renderer, font, "");
+
+    menuText.Init(Vec2(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2 - 40), renderer, font, "PONG - First to 10 wins");
+
+    pressEnterText.Init(Vec2(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2 + 20), renderer, font, "Press ENTER");
+
+    gameOverText.Init(Vec2(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2 - 40), renderer, font, "GAME OVER");
 
 }
 
 void MyGame::update(float dt){
 
-    //check if paddle 1 is moving up or down or not moving at all, and adjust it's velocity accordingly
-    if(buttons[Buttons::PaddleOneUp]){
-        paddle1.velocity.y = -PADDLE_SPEED;
-    }else if(buttons[Buttons::PaddleOneDown]){
-        paddle1.velocity.y = PADDLE_SPEED;
-    }else{
-        paddle1.velocity.y = 0.0f;
-    }
-    //check if paddle 2 is moving up or down or not moving at all, and adjust it's velocity accordingly
-    if(buttons[Buttons::PaddleTwoUp]){
-        paddle2.velocity.y = -PADDLE_SPEED;
-    }else if(buttons[Buttons::PaddleTwoDown]){
-        paddle2.velocity.y = PADDLE_SPEED;
-    }else{
-        paddle2.velocity.y = 0.0f;
+    switch(state){
+        case GameState::Menu:
+            break;
+        case GameState::Playing:
+            UpdateGameplay(dt);
+            break;
+        case GameState::GameOver:
+            return;
     }
 
-    //call the paddle update functions to find their new positions on the screen given the dt
-    paddle1.Update(dt);
-    paddle2.Update(dt);
-
-    ball.Update(dt);
-
-    if(Contact contact = CheckPaddleCollision(ball, paddle1); contact.type != CollisionType::None){
-        ball.CollideWithPaddle(contact);
-    }else if(contact = CheckPaddleCollision(ball, paddle2); contact.type != CollisionType::None){
-        ball.CollideWithPaddle(contact);
-    }else if(contact = CheckWallCollision(ball); contact.type != CollisionType::None){
-        ball.CollideWithWall(contact);
-
-        if(contact.type == CollisionType::Left){
-            ++playerTwoScore;
-
-            playerTwoScoreText.setScore(playerTwoScore);
-        }else if(contact.type == CollisionType::Right){
-            ++playerOneScore;
-
-            playerOneScoreText.setScore(playerOneScore);
-        }
-    }
 }
 
 void MyGame::handleEvent(const SDL_Event& event){
+    if(state == GameState::Menu){
+        if(event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_RETURN){
+            ResetGame();
+            state = GameState::Playing;
+        }
+        return;
+    }
+    if(state == GameState::GameOver){
+        if(event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_RETURN){
+            state = GameState::Menu;
+        }
+        return;
+    }
+
     //If a key is pressed down, check if it's a player 1 or 2 movement up or down and set those to true in the array
     if(event.type == SDL_KEYDOWN){
         if(event.key.keysym.sym == SDLK_w){
@@ -118,14 +110,25 @@ void MyGame::loadMedia(SDL_Renderer* renderer) {
 }
 
 void MyGame::render(SDL_Renderer* renderer) {
-
-
     //set the draw color to black to draw the background
     SDL_SetRenderDrawColor(renderer, bg.r, bg.g, bg.b, bg.a);
     SDL_RenderClear(renderer);
+    
+    if(state == GameState::Menu){
+        menuText.Draw();
+        pressEnterText.Draw();
+        return;
+    }
+
+    if(state == GameState::GameOver){
+        gameOverText.Draw();
+        pressEnterText.Draw();
+        return;
+    }
+    
     //then set the draw color to white for everything else
     SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
-
+    
     //draw the white dashed-line down the center of the screen
     for(int y = 0; y < get_screen_h(); y++){
         if(y % 5){
@@ -133,6 +136,7 @@ void MyGame::render(SDL_Renderer* renderer) {
         }
     }
 
+    
     //draw the ball
     ball.Draw(renderer);
     //draw the paddles
@@ -141,6 +145,7 @@ void MyGame::render(SDL_Renderer* renderer) {
     //draw the score text
     playerOneScoreText.Draw();
     playerTwoScoreText.Draw();
+
 
 }
 
@@ -219,4 +224,96 @@ Contact MyGame::CheckWallCollision(Ball const& ball){
     }
 
     return contact;
+}
+
+void MyGame::ResetGame(){
+    playerOneScore = 0;
+    playerTwoScore = 0;
+
+    playerOneScoreText.setScore(0);
+    playerTwoScoreText.setScore(0);
+
+    ResetBall();
+}
+
+void MyGame::ResetBall(bool slow){
+    float dir = (lastPointLoser == 1) ? -1.0f : 1.0f;
+    float speed = BALL_SPEED * (slow ? SLOW_MULTIPLIER : 1.0f);
+    serveIsSlow = slow;
+
+    ball.setPosition(Vec2(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2), Vec2(dir * speed, 0.0f));
+}
+
+void MyGame::UpdateGameplay(float dt){
+   //check if paddle 1 is moving up or down or not moving at all, and adjust it's velocity accordingly
+    if(buttons[Buttons::PaddleOneUp]){
+        paddle1.velocity.y = -PADDLE_SPEED;
+    }else if(buttons[Buttons::PaddleOneDown]){
+        paddle1.velocity.y = PADDLE_SPEED;
+    }else{
+        paddle1.velocity.y = 0.0f;
+    }
+    //check if paddle 2 is moving up or down or not moving at all, and adjust it's velocity accordingly
+    if(buttons[Buttons::PaddleTwoUp]){
+        paddle2.velocity.y = -PADDLE_SPEED;
+    }else if(buttons[Buttons::PaddleTwoDown]){
+        paddle2.velocity.y = PADDLE_SPEED;
+    }else{
+        paddle2.velocity.y = 0.0f;
+    }
+
+    //call the paddle update functions to find their new positions on the screen given the dt
+    paddle1.Update(dt);
+    paddle2.Update(dt);
+
+    ball.Update(dt);
+
+    if(Contact contact = CheckPaddleCollision(ball, paddle1); contact.type != CollisionType::None){
+        ball.CollideWithPaddle(contact);
+
+        if(serveIsSlow){
+            float sign = (ball.velocity.x < 0) ? -1.0f : 1.0f;
+            ball.velocity.x = sign * BALL_SPEED;
+            serveIsSlow = false;
+        }
+    }else if(contact = CheckPaddleCollision(ball, paddle2); contact.type != CollisionType::None){
+        ball.CollideWithPaddle(contact);
+
+        if(serveIsSlow){
+            float sign = (ball.velocity.x < 0) ? -1.0f : 1.0f;
+            ball.velocity.x = sign * BALL_SPEED;
+            serveIsSlow = false;
+        }
+    }else if(contact = CheckWallCollision(ball); contact.type != CollisionType::None){
+        ball.CollideWithWall(contact);
+
+        if(contact.type == CollisionType::Left){
+            ++playerTwoScore;
+
+            playerTwoScoreText.setScore(playerTwoScore);
+
+            lastPointLoser = 1;
+
+            ResetBall(true);
+
+
+        }else if(contact.type == CollisionType::Right){
+            ++playerOneScore;
+
+            playerOneScoreText.setScore(playerOneScore);
+
+            lastPointLoser = 2;
+
+            ResetBall(true);
+
+        }
+
+        if(playerOneScore >= WIN_SCORE){
+            gameOverText.setText("Player 1 wins!");
+            state = GameState::GameOver;
+        }else if(playerTwoScore >= WIN_SCORE){
+            gameOverText.setText("Player 2 wins!");
+            state = GameState::GameOver;
+        }
+    }
 }

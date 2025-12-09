@@ -72,9 +72,18 @@ class MyGame : public IGame {
          */
         int get_screen_w() const;
 
+        void ResetGame();
+
+        void ResetBall(bool slow = false);
+
+        void UpdateGameplay(float dt);
+
+        void UpdatePointDelay(float dt);
+
         Contact CheckPaddleCollision(Ball const& ball, Paddle const& paddle);
 
         Contact CheckWallCollision(Ball const& ball);
+
 
     private:
         //once again setting screen height because I haven't decided if this is something that should be set by the engine or the game lol
@@ -96,6 +105,19 @@ class MyGame : public IGame {
             PaddleTwoDown,
         };
 
+        enum class GameState {
+            Menu,
+            Playing,
+            GameOver
+        };
+
+        GameState state = GameState::Menu;
+
+        const int WIN_SCORE = 10;
+
+        bool serveIsSlow = false;
+        const float SLOW_MULTIPLIER = 0.5f;
+
         //array of bools to tell us which movements are done by which player
         bool buttons[4] = {};
 
@@ -107,11 +129,17 @@ class MyGame : public IGame {
         int playerOneScore = 0;
         int playerTwoScore = 0;
 
-        SDL_Renderer* renderer;
-        TTF_Font* font;
+        SDL_Renderer* renderer = nullptr;
+        TTF_Font* font = nullptr;
 
         PlayerScore playerOneScoreText;
         PlayerScore playerTwoScoreText;
+
+        PlayerScore menuText;
+        PlayerScore gameOverText;
+        PlayerScore pressEnterText;
+
+        int lastPointLoser = 0;
 
 };
 

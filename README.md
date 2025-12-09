@@ -31,4 +31,4 @@ Runs the program
 
 # Progress
 
-So far the demo can open a window and draw out all the objects needed for the game 'Pong', and both paddles can move. Use the up and down arrow keys for the right side, and w and s keys for the left side. All the files are seperated into engine files and game files, to avoid hardcoding anything game specific into the engine itself.
+The Pong demo is now complete. Player 1 (left) uses W + S to move, Player 2 (right) uses up + down arrow keys to move. When one person scores, the ball is served to the other person, and that is repeated until someone reaches 10, at which point the game is over and the winner is announced.

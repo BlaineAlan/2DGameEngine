@@ -177,6 +177,10 @@ class Ball{
             rect.y = static_cast<int>(position.y);
         }
 
+        void setVelocity(Vec2 vel){
+            velocity = vel;
+        }
+
         Vec2 position;
         Vec2 velocity;
         SDL_Rect rect{};
@@ -251,13 +255,13 @@ class Paddle{
         SDL_Rect rect{};
 
         const int PADDLE_WIDTH = 10;
-        const int PADDLE_HEIGHT = 80;
+        const int PADDLE_HEIGHT = 100;
 };
 
 class PlayerScore{
     public:
 
-        PlayerScore();
+        PlayerScore() = default;
 
         /**
          * @brief Construct a new PlayerScore object
@@ -290,6 +294,17 @@ class PlayerScore{
             SDL_DestroyTexture(texture);
         }
 
+        void Init(Vec2 position, SDL_Renderer* renderer, TTF_Font* font, const char* text){
+            this->renderer = renderer;
+            this->font = font;
+            // this->rect.x = static_cast<int>(position.x);
+            // this->rect.y = static_cast<int>(position.y);
+            this->position = position;
+            setScore(0);
+            setText(text);
+        }
+        
+
         /**
          * @brief Draw where they are meant to be 
          * 
@@ -297,6 +312,22 @@ class PlayerScore{
         void Draw(){
             SDL_RenderCopy(renderer, texture, nullptr, &rect);
         }
+
+        void setText(const char* text){
+            SDL_FreeSurface(surface);
+            SDL_DestroyTexture(texture);
+
+            surface = TTF_RenderText_Solid(font, text, {255, 255, 255, 255});
+            texture = SDL_CreateTextureFromSurface(renderer, surface);
+
+            int width, height;
+            SDL_QueryTexture(texture, nullptr, nullptr, &width, &height);
+            rect.w = width;
+            rect.h = height;
+            rect.x = static_cast<int>(position.x - width / 2);
+            rect.y = static_cast<int>(position.y - height / 2);
+        }
+
 
         void setScore(int score){
             SDL_FreeSurface(surface);
@@ -309,8 +340,11 @@ class PlayerScore{
             SDL_QueryTexture(texture, nullptr, nullptr, &width, &height);
             rect.w = width;
             rect.h = height;
+            rect.x = static_cast<int>(position.x - width / 2);
+            rect.y = static_cast<int>(position.y - height / 2);
         }
 
+        Vec2 position;
         SDL_Renderer* renderer;
         TTF_Font* font;
         SDL_Surface* surface{};
