@@ -5,19 +5,18 @@
 
 //Set everything to just be at 0
 MyGame::MyGame(Engine& engine)
-    :  ball(Vec2(0.0f, 0.0f)), paddle1(Vec2(0.0f, 0.0f), Vec2(0.0f, 0.0f)), paddle2(Vec2(0.0f, 0.0f), Vec2(0.0f, 0.0f))
+    :  ball(Vec2(0.0f, 0.0f), Vec2(0.0f, 0.0f)), paddle1(Vec2(0.0f, 0.0f), Vec2(0.0f, 0.0f)), paddle2(Vec2(0.0f, 0.0f), Vec2(0.0f, 0.0f)), playerOneScoreText(Vec2(0.0f, 0.0f), renderer, font), playerTwoScoreText(Vec2(0.0f, 0.0f), renderer, font)
 {}
 
 void MyGame::init(Engine& engine){
     float w = engine.get_screen_w();
     float h = engine.get_screen_h();
     
+    
     //set ball to be in the middle of the screen
     ball.setPosition(
-        Vec2(
-            (w / 2.0f) - (ball.get_b_w() / 2.0f),
-            (h / 2.0f) - (ball.get_b_w() / 2.0f)
-        )
+        Vec2((w / 2.0f),(h / 2.0f)),
+        Vec2(BALL_SPEED, 0.0f)
     );
 
     //set paddles to start at the middle of the left and right side
@@ -30,6 +29,15 @@ void MyGame::init(Engine& engine){
         Vec2(SCREEN_WIDTH - 50.0f, SCREEN_HEIGHT / 2.0f),
         Vec2(0.0f, 0.0f)
     );
+
+    //initialize our TTF (text)
+    TTF_Init();
+    //set the font
+    TTF_Font* scoreFont = TTF_OpenFont("fonts/ttf/DejaVuSansMono.ttf", 40);
+    //Set where the player 1 text will go
+    PlayerScore playerOneScoreText(Vec2(SCREEN_WIDTH / 4, 20), playerOneScoreText.renderer, scoreFont);
+    //Set where the player 2 text will go
+    PlayerScore playerTwoScoreText(Vec2(3 * SCREEN_WIDTH / 4, 20), playerTwoScoreText.renderer, scoreFont);
 
 }
 
@@ -55,6 +63,26 @@ void MyGame::update(float dt){
     //call the paddle update functions to find their new positions on the screen given the dt
     paddle1.Update(dt);
     paddle2.Update(dt);
+
+    ball.Update(dt);
+
+    if(Contact contact = CheckPaddleCollision(ball, paddle1); contact.type != CollisionType::None){
+        ball.CollideWithPaddle(contact);
+    }else if(contact = CheckPaddleCollision(ball, paddle2); contact.type != CollisionType::None){
+        ball.CollideWithPaddle(contact);
+    }else if(contact = CheckWallCollision(ball); contact.type != CollisionType::None){
+        ball.CollideWithWall(contact);
+
+        if(contact.type == CollisionType::Left){
+            ++playerTwoScore;
+
+            playerTwoScoreText.setScore(playerTwoScore);
+        }else if(contact.type == CollisionType::Right){
+            ++playerOneScore;
+
+            playerOneScoreText.setScore(playerOneScore);
+        }
+    }
 }
 
 void MyGame::handleEvent(const SDL_Event& event){
@@ -90,14 +118,7 @@ void MyGame::loadMedia(SDL_Renderer* renderer) {
 }
 
 void MyGame::render(SDL_Renderer* renderer) {
-    //initialize our TTF (text)
-    TTF_Init();
-    //set the font
-    TTF_Font* scoreFont = TTF_OpenFont("fonts/ttf/DejaVuSansMono.ttf", 40);
-    //Set where the player 1 text will go
-    PlayerScore playerOneScoreText(Vec2(SCREEN_WIDTH / 4, 20), renderer, scoreFont);
-    //Set where the player 2 text will go
-    PlayerScore playerTwoScoreText(Vec2(3 * SCREEN_WIDTH / 4, 20), renderer, scoreFont);
+
 
     //set the draw color to black to draw the background
     SDL_SetRenderDrawColor(renderer, bg.r, bg.g, bg.b, bg.a);
@@ -129,4 +150,73 @@ int MyGame::get_screen_h() const{
 
 int MyGame::get_screen_w() const{
     return SCREEN_WIDTH;
+}
+
+Contact MyGame::CheckPaddleCollision(Ball const& ball, Paddle const& paddle){
+    float ballLeft = ball.position.x;
+    float ballRight = ball.position.x + ball.get_b_w();
+    float ballTop = ball.position.y;
+    float ballBottom = ball.position.y + ball.get_b_h();
+
+    float paddleLeft = paddle.position.x;
+    float paddleRight = paddle.position.x + paddle.PADDLE_WIDTH;
+    float paddleTop = paddle.position.y;
+    float paddleBottom = paddle.position.y + paddle.PADDLE_HEIGHT;
+
+    Contact contact{};
+
+    if(ballLeft >= paddleRight){
+        return contact;
+    }
+    if(ballRight <= paddleLeft){
+        return contact;
+    }
+    if(ballTop >= paddleBottom){
+        return contact;
+    }
+    if(ballBottom <= paddleTop){
+        return contact;
+    }
+    
+    float paddleRangeUpper = paddleBottom - (2.0f * paddle.PADDLE_HEIGHT / 3.0f);
+    float paddleRangeMiddle = paddleBottom - (paddle.PADDLE_HEIGHT / 3.0f);
+
+    if(ball.velocity.x < 0){
+        contact.penetration = paddleRight - ballLeft;
+    }else if(ball.velocity.x > 0){
+        contact.penetration = paddleLeft - ballRight;
+    }
+
+    if((ballBottom > paddleTop) && (ballBottom < paddleRangeUpper)){
+        contact.type = CollisionType::Top;
+    }else if((ballBottom > paddleRangeUpper) && (ballBottom < paddleRangeMiddle)){
+        contact.type = CollisionType::Middle;
+    }else{
+        contact.type = CollisionType::Bottom;
+    }
+
+    return contact;
+}
+
+Contact MyGame::CheckWallCollision(Ball const& ball){
+    float ballLeft = ball.position.x;
+    float ballRight = ball.position.x + ball.get_b_w();
+    float ballTop = ball.position.y;
+    float ballBottom = ball.position.y + ball.get_b_h();
+
+    Contact contact{};
+
+    if(ballLeft < 0.0f){
+        contact.type = CollisionType::Left;
+    }else if(ballRight > SCREEN_WIDTH){
+        contact.type = CollisionType::Right;
+    }else if(ballTop < 0.0f){
+        contact.type = CollisionType::Top;
+        contact.penetration = -ballTop;
+    }else if(ballBottom > SCREEN_HEIGHT){
+        contact.type = CollisionType::Bottom;
+        contact.penetration = SCREEN_HEIGHT - ballBottom;
+    }
+
+    return contact;
 }

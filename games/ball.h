@@ -66,6 +66,20 @@ class Vec2{
         float x, y;
 };
 
+enum class CollisionType{
+    None,
+    Top,
+    Middle,
+    Bottom,
+    Left,
+    Right
+};
+
+struct Contact{
+    CollisionType type;
+    float penetration;
+};
+
 class Ball{
     public:
         
@@ -80,8 +94,8 @@ class Ball{
          * 
          * @param position 
          */
-        Ball(Vec2 position)
-            : position(position)
+        Ball(Vec2 position, Vec2 velocity)
+            : position(position), velocity(velocity)
         {
             rect.x = static_cast<int>(position.x);
             rect.y = static_cast<int>(position.y);
@@ -99,6 +113,38 @@ class Ball{
             rect.y = static_cast<int>(position.y);
 
             SDL_RenderFillRect(renderer, &rect);
+        }
+
+        void Update(float dt){
+            position += velocity * dt;
+        }
+
+        void CollideWithPaddle(Contact const& contact){
+            position.x += contact.penetration;
+            velocity.x = -velocity.x;
+
+            if(contact.type == CollisionType::Top){
+                velocity.y = -.75f * BALL_SPEED;
+            }else if(contact.type == CollisionType::Bottom){
+                velocity.y = 0.75f * BALL_SPEED;
+            }
+        }
+
+        void CollideWithWall(Contact const& contact){
+            if((contact.type == CollisionType::Top) || (contact.type == CollisionType::Bottom)){
+                position.y += contact.penetration;
+                velocity.y = -velocity.y;
+            }else if(contact.type == CollisionType::Left){
+                position.x = 1280 / 2.0f;
+                position.y = 720 / 2.0f;
+                velocity.x = BALL_SPEED;
+                velocity.y = 0.75f * BALL_SPEED;
+            }else if(contact.type == CollisionType::Right){
+                position.x = 1280 / 2.0f;
+                position.y = 720 / 2.0f;
+                velocity.x = -BALL_SPEED;
+                velocity.y = 0.75f * BALL_SPEED;
+            }
         }
         
         /**
@@ -124,17 +170,22 @@ class Ball{
          * 
          * @param pos 
          */
-        void setPosition(Vec2 pos){
+        void setPosition(Vec2 pos, Vec2 vel){
             position = pos;
+            velocity = vel;
             rect.x = static_cast<int>(position.x);
             rect.y = static_cast<int>(position.y);
         }
 
         Vec2 position;
+        Vec2 velocity;
         SDL_Rect rect{};
 
         const int BALL_WIDTH = 15;
         const int BALL_HEIGHT = 15;
+
+        const float BALL_SPEED = 1.0f;
+
 
 };
 
@@ -206,6 +257,8 @@ class Paddle{
 class PlayerScore{
     public:
 
+        PlayerScore();
+
         /**
          * @brief Construct a new PlayerScore object
          * 
@@ -243,6 +296,19 @@ class PlayerScore{
          */
         void Draw(){
             SDL_RenderCopy(renderer, texture, nullptr, &rect);
+        }
+
+        void setScore(int score){
+            SDL_FreeSurface(surface);
+            SDL_DestroyTexture(texture);
+
+            surface = TTF_RenderText_Solid(font, std::to_string(score).c_str(), {255, 255, 255, 255});
+            texture = SDL_CreateTextureFromSurface(renderer, surface);
+
+            int width, height;
+            SDL_QueryTexture(texture, nullptr, nullptr, &width, &height);
+            rect.w = width;
+            rect.h = height;
         }
 
         SDL_Renderer* renderer;

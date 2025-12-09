@@ -72,6 +72,10 @@ class MyGame : public IGame {
          */
         int get_screen_w() const;
 
+        Contact CheckPaddleCollision(Ball const& ball, Paddle const& paddle);
+
+        Contact CheckWallCollision(Ball const& ball);
+
     private:
         //once again setting screen height because I haven't decided if this is something that should be set by the engine or the game lol
         const int SCREEN_WIDTH = 1280;
@@ -97,6 +101,17 @@ class MyGame : public IGame {
 
         //sets a constant paddle speed 
         const float PADDLE_SPEED = 1.0f;
+
+        const float BALL_SPEED = 1.0f;
+
+        int playerOneScore = 0;
+        int playerTwoScore = 0;
+
+        SDL_Renderer* renderer;
+        TTF_Font* font;
+
+        PlayerScore playerOneScoreText;
+        PlayerScore playerTwoScoreText;
 
 };
 
