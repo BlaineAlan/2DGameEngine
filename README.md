@@ -19,7 +19,7 @@ https://austinmorlan.com/posts/pong_clone/
 
 # Running
 
-Make sure you have SDL2 installed, then
+Make sure you have SDL2, SDL2_ttf, SDL2_image, and SDL2_mixer installed, then
 
     make all
 
