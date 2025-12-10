@@ -4,6 +4,8 @@
 #include "ball.h"
 #include <SDL2/SDL_mixer.h>
 
+///BUG, IF YOU HOLD DOWN WHEN THE GAME ENDS AND START A NEW GAME YOULL BE GOING DOWN FOREVER, SHOULD PROBABLY RESET POSITION AND MOVMENT WHENN A NEW GAME STARTS
+
 //Set everything to just be at 0
 MyGame::MyGame(Engine& engine)
     :  ball(Vec2(0.0f, 0.0f), Vec2(0.0f, 0.0f)), paddle1(Vec2(0.0f, 0.0f), Vec2(0.0f, 0.0f)), paddle2(Vec2(0.0f, 0.0f), Vec2(0.0f, 0.0f))
