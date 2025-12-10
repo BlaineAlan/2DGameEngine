@@ -116,7 +116,7 @@ class MyGame : public IGame {
 
         GameState state = GameState::Menu;
 
-        const int WIN_SCORE = 10;
+        const int WIN_SCORE = 2;
 
         bool serveIsSlow = false;
         const float SLOW_MULTIPLIER = 0.5f;

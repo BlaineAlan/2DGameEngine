@@ -4,7 +4,6 @@
 #include "ball.h"
 #include <SDL2/SDL_mixer.h>
 
-///BUG, IF YOU HOLD DOWN WHEN THE GAME ENDS AND START A NEW GAME YOULL BE GOING DOWN FOREVER, SHOULD PROBABLY RESET POSITION AND MOVMENT WHENN A NEW GAME STARTS
 
 //Set everything to just be at 0
 MyGame::MyGame(Engine& engine)
@@ -253,6 +252,23 @@ Contact MyGame::CheckWallCollision(Ball const& ball){
 }
 
 void MyGame::ResetGame(){
+    //set paddles to start at the middle of the left and right side
+    paddle1.setPosition(
+        Vec2(50.0f, SCREEN_HEIGHT / 2.0f),
+        Vec2(0.0f, 0.0f)
+    );
+
+    paddle2.setPosition(
+        Vec2(SCREEN_WIDTH - 50.0f, SCREEN_HEIGHT / 2.0f),
+        Vec2(0.0f, 0.0f)
+    );
+
+    buttons[Buttons::PaddleOneUp] = false;
+    buttons[Buttons::PaddleOneDown] = false;
+    buttons[Buttons::PaddleTwoUp] = false;
+    buttons[Buttons::PaddleTwoDown] = false;
+
+
     playerOneScore = 0;
     playerTwoScore = 0;
 
